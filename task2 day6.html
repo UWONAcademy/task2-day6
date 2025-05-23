@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task 2 - Day 6</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to bottom right, #5cb1a6, #6dc1b5);
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    h2 {
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    .section-title {
+      font-size: 20px;
+      margin-top: 30px;
+      margin-bottom: 12px;
+      color: #34495e;
+      border-bottom: 2px solid #4caf91;
+      padding-bottom: 4px;
+    }
+
+    .question {
+      margin-bottom: 25px;
+    }
+
+    .english {
+      font-size: 16px;
+      margin-bottom: 6px;
+      line-height: 1.6;
+    }
+
+    .translation {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 6px;
+    }
+
+    input[type="text"] {
+      width: 140px;
+      padding: 6px;
+      margin: 0 3px;
+      font-size: 15px;
+      border: 2px solid #ccc;
+      border-radius: 6px;
+    }
+
+    .check-btn {
+      margin-top: 6px;
+      background: #4caf91;
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .feedback {
+      margin-top: 6px;
+      font-weight: bold;
+    }
+
+    .example {
+      margin-top: 4px;
+      font-style: italic;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .correct { color: green; }
+    .incorrect { color: red; }
+
+    @media (max-width: 600px) {
+      input[type="text"] {
+        width: 100px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Task 2 - Day 6</h2>
+
+    <div class="section-title">一. 句子填空（家庭话题）</div>
+
+    <div id="q1" class="question"></div>
+    <div id="q2" class="question"></div>
+    <div id="q3" class="question"></div>
+    <div id="q4" class="question"></div>
+
+    <div class="section-title">二. 家庭类短语（中译英 + 雅思例句）</div>
+
+    <div class="question">
+      <div class="english">1. 单亲家庭：</div>
+      <input type="text" id="p1">
+      <button class="check-btn" onclick="checkPhrase('p1', 'single-parent family')">Check</button>
+      <div class="feedback" id="fb_p1"></div>
+    </div>
+
+    <div class="question">
+      <div class="english">2. 家庭纽带：</div>
+      <input type="text" id="p2">
+      <button class="check-btn" onclick="checkPhrase('p2', 'family bond')">Check</button>
+      <div class="feedback" id="fb_p2"></div>
+    </div>
+
+    <div class="question">
+      <div class="english">3. 家务：</div>
+      <input type="text" id="p3">
+      <button class="check-btn" onclick="checkPhrase('p3', 'household chores')">Check</button>
+      <div class="feedback" id="fb_p3"></div>
+    </div>
+
+    <div class="question">
+      <div class="english">4. 抚养孩子：</div>
+      <input type="text" id="p4">
+      <button class="check-btn" onclick="checkPhrase('p4', 'raise children')">Check</button>
+      <div class="feedback" id="fb_p4"></div>
+    </div>
+  </div>
+
+  <script>
+    const examples = {
+      p1: { en: "Children from a single-parent family may face more emotional challenges.", zh: "来自单亲家庭的孩子可能面临更多情感挑战。" },
+      p2: { en: "Spending time together helps strengthen the family bond.", zh: "一起共度时光有助于增强家庭纽带。" },
+      p3: { en: "Both men and women should share household chores equally.", zh: "男女都应该平等分担家务。" },
+      p4: { en: "It takes a lot of patience and love to raise children well.", zh: "要把孩子养育好需要很多耐心和爱。" }
+    };
+
+    function getRandomIndexes(array, count) {
+      const set = new Set();
+      while (set.size < count && set.size < array.length) {
+        const i = Math.floor(Math.random() * array.length);
+        const word = array[i].replace(/[.,]/g, '');
+        if (word.length > 2 && !word.includes("'")) set.add(i);
+      }
+      return Array.from(set);
+    }
+
+    function renderSentence(id, sentence, translation, containerId, blanksCount = 5) {
+      const container = document.getElementById(containerId);
+      const words = sentence.split(" ");
+      const blanks = getRandomIndexes(words, blanksCount);
+      const answers = {};
+      const html = words.map((word, i) => {
+        const clean = word.replace(/[.,]/g, "");
+        const punct = word.match(/[.,]$/) ? word.slice(-1) : "";
+        if (blanks.includes(i)) {
+          const inputId = `${id}_${i}`;
+          answers[inputId] = clean.toLowerCase();
+          return `<input type="text" id="${inputId}" placeholder="...">${punct}`;
+        }
+        return word;
+      }).join(" ");
+      container.innerHTML = `
+        <div class="english">${html}</div>
+        <div class="translation">${translation}</div>
+        <button class="check-btn" onclick='checkSentence("${id}", ${JSON.stringify(answers)})'>Check</button>
+        <div class="feedback" id="fb_${id}"></div>
+      `;
+    }
+
+    function checkSentence(id, answers) {
+      const feedback = document.getElementById("fb_" + id);
+      let correct = true;
+      for (const [inputId, answer] of Object.entries(answers)) {
+        const val = document.getElementById(inputId).value.trim().toLowerCase();
+        if (val !== answer) correct = false;
+      }
+      feedback.innerHTML = correct
+        ? "<span class='correct'>✔ 正确！</span>"
+        : `<span class='incorrect'>✘ 有错误</span> 正确答案：${Object.values(answers).join(" / ")}`;
+    }
+
+    function checkPhrase(id, answer) {
+      const feedback = document.getElementById("fb_" + id);
+      const value = document.getElementById(id).value.trim().toLowerCase();
+      const correctAnswer = answer.toLowerCase();
+      const example = examples[id];
+      let html = value === correctAnswer
+        ? `<span class='correct'>✔ 正确！</span>`
+        : `<span class='incorrect'>✘ 错误</span> 正确答案：${answer}`;
+      if (example) {
+        html += `<div class='example'>例句：${example.en}<br>翻译：${example.zh}</div>`;
+      }
+      feedback.innerHTML = html;
+    }
+
+    // 渲染句子填空
+    renderSentence("s1",
+      "Today we tend to live in small nuclear families rather than large extended families. Parents also tend to have fewer children because of the high cost of raising them.",
+      "现代人更倾向于小家庭，孩子也少，因为抚养成本高。",
+      "q1"
+    );
+
+    renderSentence("s2",
+      "Women traditionally stayed at home to cook and take care of children, but now it's normal for women to gain qualifications and pursue a career.",
+      "传统女性在家务工，现在女性更常去考资格证、发展职业。",
+      "q2"
+    );
+
+    renderSentence("s3",
+      "A lack of closeness in families can negatively affect children. Friends, TV and the Internet become the main influence on their behavior, leading to more juvenile delinquency.",
+      "家庭缺乏亲密感使孩子更容易受外界影响，导致青少年犯罪上升。",
+      "q3"
+    );
+
+    renderSentence("s4",
+      "In the past, divorce was unacceptable, but now it is much more acceptable. However, children from single-parent families are more likely to get low grades or drop out.",
+      "过去离婚不被接受，现在普遍了。但单亲家庭的孩子更易成绩差或辍学。",
+      "q4"
+    );
+  </script>
+</body>
+</html>
